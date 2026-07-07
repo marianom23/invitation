@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Music, PauseCircle, PlayCircle } from "lucide-react";
 import { useConfig } from "@/features/invitation/hooks/use-config";
 import BottomBar from "@/components/layout/bottom-bar";
+import FloatingDecorations from "@/components/ui/floating-decorations";
 
 /**
  * Layout component that wraps the main invitation content.
@@ -47,7 +48,7 @@ const Layout = ({ children, audioControls }) => {
           <div
             className="absolute top-1/2 left-1/2"
             style={{
-              backgroundImage: `url('/images/AdobeStock_1562233056.jpeg')`,
+              backgroundImage: `url('/images/watercolor-bg.webp')`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               width: "100vh",
@@ -57,6 +58,9 @@ const Layout = ({ children, audioControls }) => {
             }}
           />
         </div>
+
+        {/* Hearts + petals floating over the whole card */}
+        <FloatingDecorations hearts={5} petals={8} />
 
         <div className="relative z-10 w-full">
           {/* Music Control Button with Status Indicator */}

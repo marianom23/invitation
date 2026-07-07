@@ -15,6 +15,7 @@ import { zValidator } from "@hono/zod-validator";
 // Feature routes
 import { invitationRoutes } from "./features/invitation/index.js";
 import { wishesRoutes } from "./features/wishes/index.js";
+import { ensureGuestCountColumn } from "./features/wishes/ensure-guest-count-column.js";
 import { uidParamSchema } from "./schemas.js";
 import { getDbClient } from "./lib/db-client.js";
 
@@ -33,6 +34,12 @@ app.use(
   }),
 );
 
+// Serve the SPA shell for the /admin RSVP dashboard on Cloudflare Workers
+app.get("/admin", async (c) => {
+  const indexUrl = new URL("/", c.req.url);
+  return c.env.ASSETS.fetch(new Request(indexUrl, c.req.raw));
+});
+
 // ============ Mount Feature Routes ============
 
 // Invitation routes: /api/invitation/:uid
@@ -47,12 +54,14 @@ api.get("/:uid/stats", zValidator("param", uidParamSchema), async (c) => {
 
   try {
     const pool = await getDbClient(c);
+    await ensureGuestCountColumn(pool);
     const result = await pool.query(
       `SELECT
-          COUNT(*) FILTER (WHERE attendance = 'ATTENDING') as attending,
+          COALESCE(SUM(guest_count) FILTER (WHERE attendance = 'ATTENDING'), 0) as attending,
           COUNT(*) FILTER (WHERE attendance = 'NOT_ATTENDING') as not_attending,
           COUNT(*) FILTER (WHERE attendance = 'MAYBE') as maybe,
-          COUNT(*) as total
+          COUNT(*) as total,
+          COALESCE(SUM(guest_count), 0) as total_guests
        FROM wishes
        WHERE invitation_uid = $1`,
       [uid],

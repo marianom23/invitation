@@ -6,6 +6,7 @@ import {
   getWeddingUid,
   storeWeddingUid,
   storeGuestName,
+  storeGuestLimit,
   hasInvitationData,
 } from "@/lib/invitation-storage";
 import { safeBase64 } from "@/lib/base64";
@@ -36,8 +37,14 @@ const InvitationContext = createContext(null);
 export function InvitationProvider({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const isAdminPage = location.pathname === "/admin";
 
   const invitationUid = useMemo(() => {
+    // The /admin dashboard resolves its own UID from ?uid=, not from the path
+    if (isAdminPage) {
+      return null;
+    }
+
     // Extract UID from URL first (to check if it's different)
     let uidFromUrl = null;
 
@@ -87,12 +94,15 @@ export function InvitationProvider({ children }) {
       "No invitation UID found. Please provide /your-uid in the URL or set VITE_INVITATION_UID in .env",
     );
     return null;
-  }, [location.pathname, location.search]);
+  }, [isAdminPage, location.pathname, location.search]);
 
   // Extract and store guest name from URL, then clean URL
   useEffect(() => {
+    if (isAdminPage) return;
+
     const urlParams = new URLSearchParams(location.search);
     const guestParam = urlParams.get("guest");
+    const guestsParam = urlParams.get("guests");
 
     // Store guest name if present (even if different from stored - auto-update)
     if (guestParam) {
@@ -112,19 +122,24 @@ export function InvitationProvider({ children }) {
       }
     }
 
+    if (guestsParam) {
+      storeGuestLimit(guestsParam);
+    }
+
     // Clean URL if we have UID in path or guest in query params
     const hasUidInPath = location.pathname !== "/" && location.pathname !== "";
     const hasGuestParam = urlParams.has("guest");
+    const hasGuestsParam = urlParams.has("guests");
     const hasUidParam = urlParams.has("uid");
 
-    if (hasUidInPath || hasGuestParam || hasUidParam) {
+    if (hasUidInPath || hasGuestParam || hasGuestsParam || hasUidParam) {
       // Only clean URL if we have data stored
       if (hasInvitationData()) {
         // Use window.history.replaceState for clean URL without reload
         window.history.replaceState({}, "", "/");
       }
     }
-  }, [location.pathname, location.search, navigate]);
+  }, [isAdminPage, location.pathname, location.search, navigate]);
 
   const {
     data: config,

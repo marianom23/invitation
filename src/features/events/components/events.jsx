@@ -1,4 +1,5 @@
 import EventCards from "@/features/events/components/events-card";
+import DressCode from "@/features/events/components/dress-code";
 import { useConfig } from "@/features/invitation/hooks/use-config";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
@@ -85,6 +86,9 @@ export default function Events() {
           >
             <EventCards events={config.agenda} />
           </motion.div>
+
+          {/* Dress Code as part of the event details */}
+          <DressCode />
         </motion.div>
       </section>
     </>

@@ -18,6 +18,7 @@ describe("schemas", () => {
         name: "Ahmad Abdullah",
         message: "Congratulations on your wedding!",
         attendance: "ATTENDING",
+        guest_count: 4,
       });
 
       expect(result.success).toBe(true);
@@ -25,6 +26,7 @@ describe("schemas", () => {
         name: "Ahmad Abdullah",
         message: "Congratulations on your wedding!",
         attendance: "ATTENDING",
+        guest_count: 4,
       });
     });
 
@@ -48,6 +50,20 @@ describe("schemas", () => {
 
       expect(result.success).toBe(true);
       expect(result.data.attendance).toBe("MAYBE");
+      expect(result.data.guest_count).toBe(1);
+    });
+
+    it("should reject invalid guest count values", () => {
+      const result = createWishSchema.safeParse({
+        name: "Guest",
+        message: "Congrats!",
+        guest_count: 21,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error.issues[0].message).toBe(
+        "Guest count cannot exceed 20",
+      );
     });
 
     it("should reject empty name", () => {

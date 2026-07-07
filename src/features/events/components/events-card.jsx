@@ -66,7 +66,7 @@ const CalendarButton = ({ icon: Icon, label, onClick, className = "" }) => (
  * @param {string} props.eventData.title - The title of the event.
  * @param {string} props.eventData.description - A description of the event.
  * @param {string} props.eventData.location - The location where the event takes place.
- * @param {string} props.eventData.timeZone - The time zone of the event.
+ * @param {string} props.eventData.timeZone - The IANA time zone of the event (defaults to America/Argentina/Buenos_Aires).
  *
  * @example
  * const eventData = {
@@ -76,7 +76,7 @@ const CalendarButton = ({ icon: Icon, label, onClick, className = "" }) => (
  *   title: 'Wedding Ceremony - Reception',
  *   description: 'Join us to celebrate the wedding ceremony and reception.',
  *   location: 'Sunset Gardens',
- *   timeZone: 'Asia/Jakarta'
+ *   timeZone: 'America/Argentina/Buenos_Aires'
  * };
  *
  * <SingleEventCard eventData={eventData} />
@@ -86,33 +86,62 @@ const CalendarButton = ({ icon: Icon, label, onClick, className = "" }) => (
 const SingleEventCard = ({ eventData }) => {
   const [showCalendarModal, setShowCalendarModal] = useState(false);
 
+  const timeZone = eventData.timeZone || "America/Argentina/Buenos_Aires";
+
+  const normalizeTime = (time) => String(time || "00:00").slice(0, 5);
+
+  const getEventDates = () => {
+    // API dates arrive as full ISO strings (UTC midnight); keep only the
+    // date part so the event lands on the intended local day.
+    const dateOnly = String(eventData.date).slice(0, 10);
+    const startDate = new Date(
+      `${dateOnly}T${normalizeTime(eventData.startTime)}:00`,
+    );
+    const endDate = new Date(
+      `${dateOnly}T${normalizeTime(eventData.endTime)}:00`,
+    );
+
+    // Events ending past midnight (e.g. 19:00 - 03:00) finish the next day
+    if (endDate <= startDate) {
+      endDate.setDate(endDate.getDate() + 1);
+    }
+
+    return { startDate, endDate };
+  };
+
+  // Format as local wall-clock time (no UTC conversion) so the calendar
+  // entry keeps the invitation's timezone via ctz / TZID.
+  const formatCalendarDate = (date) => {
+    const pad = (value) => String(value).padStart(2, "0");
+
+    return [
+      date.getFullYear(),
+      pad(date.getMonth() + 1),
+      pad(date.getDate()),
+      "T",
+      pad(date.getHours()),
+      pad(date.getMinutes()),
+      "00",
+    ].join("");
+  };
+
   const googleCalendarLink = () => {
-    const startDate = new Date(`${eventData.date}T${eventData.startTime}:00`);
-    const endDate = new Date(`${eventData.date}T${eventData.endTime}:00`);
+    const { startDate, endDate } = getEventDates();
 
-    const formatDate = (date) => {
-      return date.toISOString().replace(/-|:|\.\d+/g, "");
-    };
-
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventData.title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(eventData.description)}&location=${encodeURIComponent(eventData.location)}&ctz=${eventData.timeZone}`;
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventData.title)}&dates=${formatCalendarDate(startDate)}/${formatCalendarDate(endDate)}&details=${encodeURIComponent(eventData.description || "")}&location=${encodeURIComponent(eventData.location)}&ctz=${encodeURIComponent(timeZone)}`;
   };
 
   const generateICSContent = () => {
-    const startDate = new Date(`${eventData.date}T${eventData.startTime}:00`);
-    const endDate = new Date(`${eventData.date}T${eventData.endTime}:00`);
-
-    const formatICSDate = (date) => {
-      return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-    };
+    const { startDate, endDate } = getEventDates();
 
     return `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 URL:${window.location.href}
-DTSTART:${formatICSDate(startDate)}
-DTEND:${formatICSDate(endDate)}
+DTSTART;TZID=${timeZone}:${formatCalendarDate(startDate)}
+DTEND;TZID=${timeZone}:${formatCalendarDate(endDate)}
 SUMMARY:${eventData.title}
-DESCRIPTION:${eventData.description}
+DESCRIPTION:${eventData.description || ""}
 LOCATION:${eventData.location}
 END:VEVENT
 END:VCALENDAR`;

@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { createWishSchema, wishesQuerySchema } from "../../schemas.js";
 import { getDbClient } from "../../lib/db-client.js";
+import { ensureGuestCountColumn } from "./ensure-guest-count-column.js";
 
 const wishesRoutes = new Hono();
 
@@ -20,6 +21,7 @@ wishesRoutes.get("/", zValidator("query", wishesQuerySchema), async (c) => {
 
   try {
     const pool = await getDbClient(c);
+    await ensureGuestCountColumn(pool);
 
     // Verify invitation exists
     const invitation = await pool.query(
@@ -30,10 +32,11 @@ wishesRoutes.get("/", zValidator("query", wishesQuerySchema), async (c) => {
       return c.json({ success: false, error: "Invitation not found" }, 404);
     }
 
-    // Get wishes
+    // Get wishes (created_at is stored as naive UTC; return it as timestamptz
+    // so clients format it in the guest's local timezone)
     const result = await pool.query(
-      `SELECT id, name, message, attendance,
-                created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as created_at
+      `SELECT id, name, message, attendance, guest_count,
+                created_at AT TIME ZONE 'UTC' as created_at
          FROM wishes
          WHERE invitation_uid = $1
          ORDER BY created_at DESC
@@ -68,10 +71,11 @@ wishesRoutes.get("/", zValidator("query", wishesQuerySchema), async (c) => {
  */
 wishesRoutes.post("/", zValidator("json", createWishSchema), async (c) => {
   const uid = c.req.param("uid");
-  const { name, message, attendance } = c.req.valid("json");
+  const { name, message, attendance, guest_count } = c.req.valid("json");
 
   try {
     const pool = await getDbClient(c);
+    await ensureGuestCountColumn(pool);
 
     // Verify invitation exists
     const invitation = await pool.query(
@@ -100,13 +104,13 @@ wishesRoutes.post("/", zValidator("json", createWishSchema), async (c) => {
       );
     }
 
-    // Insert wish
+    // Insert wish (store created_at as naive UTC regardless of server timezone)
     const result = await pool.query(
-      `INSERT INTO wishes (invitation_uid, name, message, attendance, created_at)
-         VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')
-         RETURNING id, name, message, attendance,
-                   created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as created_at`,
-      [uid, name, message, attendance],
+      `INSERT INTO wishes (invitation_uid, name, message, attendance, guest_count, created_at)
+         VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+         RETURNING id, name, message, attendance, guest_count,
+                   created_at AT TIME ZONE 'UTC' as created_at`,
+      [uid, name, message, attendance, guest_count],
     );
 
     return c.json({ success: true, data: result.rows[0] }, 201);
@@ -140,6 +144,7 @@ wishesRoutes.delete("/:id", async (c) => {
 
   try {
     const pool = await getDbClient(c);
+    await ensureGuestCountColumn(pool);
     const result = await pool.query(
       "DELETE FROM wishes WHERE id = $1 AND invitation_uid = $2 RETURNING id",
       [id, uid],
@@ -195,12 +200,14 @@ wishesRoutes.get("/stats", async (c) => {
 
   try {
     const pool = await getDbClient(c);
+    await ensureGuestCountColumn(pool);
     const result = await pool.query(
       `SELECT
-            COUNT(*) FILTER (WHERE attendance = 'ATTENDING') as attending,
+            COALESCE(SUM(guest_count) FILTER (WHERE attendance = 'ATTENDING'), 0) as attending,
             COUNT(*) FILTER (WHERE attendance = 'NOT_ATTENDING') as not_attending,
             COUNT(*) FILTER (WHERE attendance = 'MAYBE') as maybe,
-            COUNT(*) as total
+            COUNT(*) as total,
+            COALESCE(SUM(guest_count), 0) as total_guests
          FROM wishes
          WHERE invitation_uid = $1`,
       [uid],

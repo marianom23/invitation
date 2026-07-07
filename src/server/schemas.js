@@ -29,6 +29,17 @@ export const createWishSchema = z.object({
       }),
     })
     .default("MAYBE"),
+
+  guest_count: z
+    .number({
+      errorMap: () => ({
+        message: "Guest count must be a number",
+      }),
+    })
+    .int("Guest count must be an integer")
+    .min(1, "Guest count must be at least 1")
+    .max(20, "Guest count cannot exceed 20")
+    .default(1),
 });
 
 /**

@@ -4,6 +4,7 @@ import ImmersionGallery from "./immersion-gallery";
 import { Location, VenuePhotos } from "@/features/location";
 import { Wishes } from "@/features/wishes";
 import { Gifts } from "@/features/gifts";
+import { Playlist } from "@/features/music";
 
 // Main Invitation Content
 export default function MainContent() {
@@ -15,6 +16,7 @@ export default function MainContent() {
       <Location />
       <VenuePhotos />
       <Gifts />
+      <Playlist />
       <Wishes />
     </>
   );

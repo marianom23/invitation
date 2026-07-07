@@ -22,6 +22,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { useInvitation } from "@/features/invitation";
 import { useAudio } from "@/hooks/use-audio";
 import staticConfig from "@/config/config";
+import { AdminRsvpPage } from "@/features/wishes";
 
 // Lazy load components for better performance
 const Layout = lazy(() => import("@/components/layout/layout"));
@@ -62,6 +63,10 @@ function App() {
     src: activeConfig?.audio?.src || "/audio/fulfilling-humming.mp3",
     loop: activeConfig?.audio?.loop !== false,
   });
+
+  if (window.location.pathname === "/admin") {
+    return <AdminRsvpPage />;
+  }
 
   // Handle opening the invitation - this is called from a user click,
   // which is the perfect opportunity to start audio (browser policy compliant)

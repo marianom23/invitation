@@ -6,6 +6,7 @@ import {
   Clock,
   ChevronDown,
   User,
+  Users,
   MessageCircle,
   Send,
   CheckCircle,
@@ -19,7 +20,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatEventDate } from "@/lib/format-event-date";
 import { useInvitation } from "@/features/invitation";
 import { fetchWishes, createWish, checkWishSubmitted } from "@/services/api";
-import { getGuestName } from "@/lib/invitation-storage";
+import { getGuestLimit, getGuestName } from "@/lib/invitation-storage";
+
+const DEFAULT_GUEST_LIMIT = 20;
 
 export default function Wishes() {
   const { uid } = useInvitation();
@@ -28,6 +31,8 @@ export default function Wishes() {
   const [newWish, setNewWish] = useState("");
   const [guestName, setGuestName] = useState("");
   const [attendance, setAttendance] = useState("");
+  const [guestCount, setGuestCount] = useState(1);
+  const [guestLimit, setGuestLimit] = useState(DEFAULT_GUEST_LIMIT);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isNameFromInvitation, setIsNameFromInvitation] = useState(false);
@@ -41,6 +46,12 @@ export default function Wishes() {
     if (storedGuestName) {
       setGuestName(storedGuestName);
       setIsNameFromInvitation(true);
+    }
+
+    const storedGuestLimit = getGuestLimit();
+    if (storedGuestLimit) {
+      setGuestLimit(storedGuestLimit);
+      setGuestCount((currentCount) => Math.min(currentCount, storedGuestLimit));
     }
   }, []);
 
@@ -117,6 +128,7 @@ export default function Wishes() {
         // Reset form (keep guest name)
         setNewWish("");
         setAttendance("");
+        setGuestCount(1);
         setHasSubmittedWish(true);
         setErrorMessage("");
         // Show confetti
@@ -157,10 +169,24 @@ export default function Wishes() {
     // Clear any previous errors
     setErrorMessage("");
 
+    const confirmedGuestCount = Number.parseInt(guestCount, 10);
+    if (
+      !Number.isInteger(confirmedGuestCount) ||
+      confirmedGuestCount < 1 ||
+      confirmedGuestCount > guestLimit
+    ) {
+      setErrorMessage(
+        `La cantidad de invitados no puede superar ${guestLimit}.`,
+      );
+      setTimeout(() => setErrorMessage(""), 5000);
+      return;
+    }
+
     createWishMutation.mutate({
       name: guestName.trim(),
       message: newWish.trim(),
       attendance: attendance || "MAYBE",
+      guest_count: confirmedGuestCount,
     });
   };
   const getAttendanceIcon = (status) => {
@@ -297,6 +323,12 @@ export default function Wishes() {
                                   true,
                                 )}
                               </time>
+                              {wish.guest_count > 1 && (
+                                <span className="flex items-center gap-1 text-emerald-700 ml-1">
+                                  <Users className="w-3 h-3" />
+                                  {wish.guest_count}
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -393,6 +425,14 @@ export default function Wishes() {
                             {selectedWish.attendance === "MAYBE" &&
                               "Quizás asista"}
                           </span>
+                          {selectedWish.guest_count && (
+                            <span className="text-sm font-medium text-gray-700">
+                              / {selectedWish.guest_count}{" "}
+                              {selectedWish.guest_count === 1
+                                ? "persona"
+                                : "personas"}
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
@@ -598,6 +638,36 @@ export default function Wishes() {
                           </motion.div>
                         )}
                       </AnimatePresence>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 }}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center space-x-2 text-gray-500 text-sm mb-1">
+                        <Users className="w-4 h-4" />
+                        <label htmlFor="guest-count">
+                          Cantidad de personas
+                        </label>
+                      </div>
+                      <select
+                        id="guest-count"
+                        name="guestCount"
+                        value={guestCount}
+                        onChange={(e) => setGuestCount(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-emerald-100 focus:border-emerald-300 focus:ring focus:ring-emerald-200 focus:ring-opacity-50 transition-all duration-200 text-gray-700"
+                        required
+                      >
+                        {Array.from({ length: guestLimit }, (_, index) => {
+                          const value = index + 1;
+                          return (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          );
+                        })}
+                      </select>
                     </motion.div>
                     {/* Wish Textarea */}
                     <div className="space-y-2">

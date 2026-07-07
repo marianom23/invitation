@@ -7,7 +7,7 @@ This guide explains how to generate and distribute personalized invitation links
 Each guest receives a unique invitation link:
 
 ```
-https://yourdomain.com/<wedding-uid>?guest=<base64-encoded-name>
+https://yourdomain.com/<wedding-uid>?guest=<base64-encoded-name>&guests=<guest-count>
 ```
 
 **Components:**
@@ -15,6 +15,7 @@ https://yourdomain.com/<wedding-uid>?guest=<base64-encoded-name>
 - `<wedding-uid>`: Your unique wedding identifier (e.g., `rifqi-dina-2025`)
 - `?guest=`: Query parameter for guest identification
 - `<base64-encoded-name>`: Guest name encoded in URL-safe base64 format
+- `&guests=`: Maximum people allowed to RSVP with this invitation
 
 ## How It Works
 
@@ -53,9 +54,9 @@ bun run generate-links
    const BASE_URL = "https://yourdomain.com";
 
    const guestList = [
-     "Ahmad Abdullah",
-     "Sarah Johnson",
-     "Bapak Rudi & Keluarga",
+     { name: "Ahmad Abdullah", guests: 1 },
+     { name: "Sarah Johnson", guests: 1 },
+     { name: "Bapak Rudi & Keluarga", guests: 4 },
      // ... add all your guests
    ];
    ```
@@ -69,11 +70,11 @@ bun run generate-links
 3. Output includes personalized links:
 
    ```
-   1. Ahmad Abdullah
-      https://yourdomain.com/ahmad-fatimah-2025?guest=QWhtYWQlMjBBYmR1bGxhaA
+   1. Ahmad Abdullah (1 persona)
+      https://yourdomain.com/ahmad-fatimah-2025?guest=QWhtYWQlMjBBYmR1bGxhaA&guests=1
 
-   2. Sarah Johnson
-      https://yourdomain.com/ahmad-fatimah-2025?guest=U2FyYWglMjBKb2huc29u
+   2. Bapak Rudi & Keluarga (4 personas)
+      https://yourdomain.com/ahmad-fatimah-2025?guest=QmFwYWslMjBSdWRpJTI2JTIwS2VsdWFyZ2E&guests=4
    ```
 
 ## Guest Experience Features
@@ -82,6 +83,7 @@ bun run generate-links
 - **Wish form ready**: Name pre-populated in wedding wish submission
 - **Editable**: Guests can update their name if needed
 - **Attendance tracking**: Individual RSVP tracked per guest
+- **Guest count limit**: RSVP cannot exceed the number assigned in the personalized link
 - **No login required**: Seamless experience without authentication
 - **Privacy protected**: Guest data stored locally, not in URL history
 

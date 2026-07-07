@@ -4,62 +4,45 @@ import { useState, useEffect, useCallback } from "react";
 import { useConfig } from "../hooks/use-config";
 import { getGuestName } from "@/lib/invitation-storage";
 
-const FloatingHearts = () => {
-  const [hearts] = useState(() =>
-    [...Array(20)].map((_, i) => ({
-      size: Math.floor(Math.random() * 20) + 15,
-      color:
-        i % 3 === 0
-          ? "text-emerald-200"
-          : i % 3 === 1
-            ? "text-pink-200"
-            : "text-emerald-100",
-      initialX: Math.random() * 100,
-      duration: Math.random() * 8 + 7,
-      delay: Math.random() * 10,
-      rotation: Math.random() * 360,
-    })),
-  );
+/**
+ * Reveals text letter by letter with a soft rise + blur effect.
+ * Each character animates independently with a staggered delay.
+ */
+const AnimatedLetters = ({ text, delay = 0, stagger = 0.06, className }) => (
+  <span className={className} aria-label={text}>
+    {[...text].map((char, i) => (
+      <motion.span
+        key={`${char}-${i}`}
+        aria-hidden="true"
+        initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{
+          delay: delay + i * stagger,
+          duration: 0.5,
+          ease: "easeOut",
+        }}
+        className="inline-block"
+      >
+        {char === " " ? " " : char}
+      </motion.span>
+    ))}
+  </span>
+);
 
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {hearts.map((heart, i) => (
-        <motion.div
-          key={i}
-          initial={{
-            opacity: 0,
-            scale: 0,
-            left: `${heart.initialX}%`,
-            bottom: "-10%",
-          }}
-          animate={{
-            opacity: [0, 0.8, 0.8, 0], // Increased opacity
-            scale: [0.5, 1, 1, 0.5],
-            bottom: ["-10%", "110%"],
-            x: [0, 50, -50, 0],
-            rotate: [heart.rotation, heart.rotation + 360],
-          }}
-          transition={{
-            duration: heart.duration,
-            repeat: Infinity,
-            delay: heart.delay,
-            ease: "linear",
-          }}
-          className="absolute"
-        >
-          <Heart
-            className={heart.color}
-            style={{
-              width: `${heart.size}px`,
-              height: `${heart.size}px`,
-            }}
-            fill="currentColor"
-          />
-        </motion.div>
-      ))}
-    </div>
-  );
-};
+/**
+ * Reveals text with a left-to-right "handwriting" sweep.
+ * Uses clip-path so cursive ligatures stay intact.
+ */
+const WriteOnText = ({ text, delay = 0, duration = 1.4, className }) => (
+  <motion.span
+    initial={{ opacity: 0, clipPath: "inset(-15% 100% -25% 0)" }}
+    animate={{ opacity: 1, clipPath: "inset(-15% -5% -25% 0)" }}
+    transition={{ delay, duration, ease: "easeInOut" }}
+    className={`inline-block ${className || ""}`}
+  >
+    {text}
+  </motion.span>
+);
 
 export default function Hero() {
   const config = useConfig();
@@ -136,7 +119,7 @@ export default function Hero() {
         {/* Flipped Flower Decoration at Top */}
         <div className="absolute top-0 left-0 w-full h-40 sm:h-56 z-0 pointer-events-none opacity-90 overflow-hidden flex items-start justify-center">
           <img
-            src="/images/png-flower-top.png"
+            src="/images/flower-top.webp"
             alt=""
             className="w-full h-full object-cover object-top transform scale-y-[-1] scale-110"
           />
@@ -185,7 +168,7 @@ export default function Hero() {
                 </span>
               </div>
               <p className="text-emerald-800 font-serif italic text-2xl sm:text-3xl tracking-widest uppercase">
-                ¡Nos Casamos!
+                <AnimatedLetters text="¡Nos Casamos!" delay={0.7} />
               </p>
               <div className="w-16 h-px bg-emerald-200/50 mx-auto mt-4" />
             </motion.div>
@@ -195,7 +178,7 @@ export default function Hero() {
               <div
                 className="absolute inset-x-0 inset-y-0 z-0 opacity-80 pointer-events-none bg-contain bg-center bg-no-repeat transition-transform duration-700 hover:scale-105"
                 style={{
-                  backgroundImage: `url('/images/circular.png')`,
+                  backgroundImage: `url('/images/circular-frame.webp')`,
                   scale: "1.4",
                 }}
               />
@@ -206,11 +189,26 @@ export default function Hero() {
                 transition={{ delay: 0.8, duration: 0.8 }}
                 className="text-5xl sm:text-7xl font-cursive text-emerald-900 drop-shadow-sm flex flex-wrap items-center justify-center gap-x-2 py-4 relative z-10"
               >
-                <span>{config.groomName}</span>
-                <span className="text-emerald-700 font-script text-4xl sm:text-5xl mx-2">
+                <WriteOnText
+                  text={config.groomName}
+                  delay={1.1}
+                  duration={1.3}
+                  className="px-1"
+                />
+                <motion.span
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 2.4, duration: 0.5, type: "spring" }}
+                  className="text-emerald-700 font-script text-4xl sm:text-5xl mx-2"
+                >
                   &
-                </span>
-                <span>{config.brideName}</span>
+                </motion.span>
+                <WriteOnText
+                  text={config.brideName}
+                  delay={2.7}
+                  duration={1.3}
+                  className="px-1"
+                />
               </motion.h2>
             </div>
           </div>
@@ -321,11 +319,22 @@ export default function Hero() {
                 fill="currentColor"
               />
             </motion.div>
+
+            <motion.img
+              src="/images/pajaris.png"
+              alt=""
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.8, duration: 0.8 }}
+              className="w-72 sm:w-96 mx-auto -mt-2 pointer-events-none select-none"
+              style={{
+                // Tint the brown artwork to a muted emerald, keeping inner shading
+                filter:
+                  "sepia(100%) saturate(115%) hue-rotate(110deg) brightness(72%) opacity(75%)",
+              }}
+            />
           </div>
         </motion.div>
-
-        {/* Floating Hearts background layer */}
-        <FloatingHearts />
       </section>
     </>
   );

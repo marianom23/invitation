@@ -14,6 +14,20 @@ import staticConfig from "@/config/config";
 export function useConfig() {
   const { config } = useInvitation();
 
-  // Return API config if available, otherwise static config
-  return config || staticConfig.data;
+  if (!config) {
+    return staticConfig.data;
+  }
+
+  // API dates arrive as full ISO strings ("2026-12-06T00:00:00.000Z", UTC
+  // midnight). Keep only YYYY-MM-DD so components that append a local time
+  // (e.g. hero's countdown) don't shift to the previous day in UTC-3.
+  const normalizedDate =
+    typeof config.date === "string" && config.date.includes("T")
+      ? config.date.slice(0, 10)
+      : config.date || staticConfig.data.date;
+
+  return {
+    ...config,
+    date: normalizedDate,
+  };
 }

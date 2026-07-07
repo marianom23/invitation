@@ -80,6 +80,7 @@ export function createMockWish(overrides = {}) {
     name: "Test Guest",
     message: "Congratulations!",
     attendance: "ATTENDING",
+    guest_count: 1,
     created_at: new Date().toISOString(),
     ...overrides,
   };
@@ -129,6 +130,7 @@ export function createMockStats(overrides = {}) {
     not_attending: "5",
     maybe: "3",
     total: "18",
+    total_guests: "18",
     ...overrides,
   };
 }

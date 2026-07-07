@@ -128,6 +128,51 @@ const config = {
       loop: true,
     },
 
+    // Dress code for the celebration. Leave code empty ("") to hide the section.
+    dressCode: {
+      code: "Elegante",
+      note: "Se agradece evitar el color blanco, reservado para la novia.",
+    },
+
+    // Love story timeline ("Nuestra Historia"). Leave empty ([]) to hide the section.
+    story: [
+      {
+        year: "2007",
+        title: "Nos conocimos",
+        description:
+          "El comienzo de todo: una historia que empezó casi sin darnos cuenta.",
+        image: "/images/ellos-joven.jpeg",
+      },
+      {
+        year: "2015",
+        title: "Construyendo juntos",
+        description:
+          "Años de risas, viajes y momentos que nos hicieron equipo.",
+        image: "/images/ellos-playa.jpeg",
+      },
+      {
+        year: "2024",
+        title: "La propuesta",
+        description:
+          "Dijimos que sí a seguir eligiéndonos, ahora para siempre.",
+        image: "/images/ellos-beso.jpeg",
+      },
+      {
+        year: "2026",
+        title: "¡Nos casamos!",
+        description: "Y queremos celebrarlo con vos.",
+        image: "/images/ellos-abrazados.jpeg",
+      },
+    ],
+
+    // Spotify playlist so guests can recommend songs for the party.
+    // Paste a normal playlist link (ideally a collaborative one so guests can add tracks themselves).
+    // Leave playlistUrl empty ("") to hide this section.
+    spotify: {
+      playlistUrl:
+        "https://open.spotify.com/playlist/3vrhF6ggH3txqH7DGsX9xT?si=A6tTggwFR3-2rLTNm1hV1w&pi=nl6J_ycJSaOsn&pt=d7b8c68dfea784db5cf445aa193c71c6",
+    },
+
     // List of bank accounts for digital envelope/gifts
     banks: [
       {

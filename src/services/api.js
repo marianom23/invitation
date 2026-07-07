@@ -23,7 +23,7 @@ export async function fetchWishes(uid, options = {}) {
 /**
  * Create a new wish
  * @param {string} uid - Invitation UID
- * @param {object} wishData - Wish data (name, message, attendance)
+ * @param {object} wishData - Wish data (name, message, attendance, guest_count)
  * @returns {Promise<object>} Response with created wish
  */
 export async function createWish(uid, wishData) {

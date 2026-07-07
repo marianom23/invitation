@@ -6,12 +6,14 @@
 const STORAGE_KEYS = {
   WEDDING_UID: "sakeenah_wedding_uid",
   GUEST_NAME: "sakeenah_guest_name",
+  GUEST_LIMIT: "sakeenah_guest_limit",
   GUEST_TOKEN: "sakeenah_guest_token",
   TIMESTAMP: "sakeenah_timestamp",
 };
 
 // Storage expiration: 30 days
 const STORAGE_EXPIRY = 30 * 24 * 60 * 60 * 1000;
+const MAX_GUEST_LIMIT = 20;
 
 /**
  * Check if stored data has expired
@@ -100,6 +102,47 @@ export function getGuestName() {
 }
 
 /**
+ * Store guest limit in localStorage.
+ * @param {number} limit - Maximum people allowed for this invitation link
+ */
+export function storeGuestLimit(limit) {
+  const parsedLimit = Number.parseInt(limit, 10);
+  if (!Number.isInteger(parsedLimit) || parsedLimit < 1) return;
+
+  try {
+    const guestLimit = Math.min(parsedLimit, MAX_GUEST_LIMIT);
+    localStorage.setItem(STORAGE_KEYS.GUEST_LIMIT, guestLimit.toString());
+    localStorage.setItem(STORAGE_KEYS.TIMESTAMP, Date.now().toString());
+  } catch (error) {
+    console.error("Error storing guest limit:", error);
+  }
+}
+
+/**
+ * Get guest limit from localStorage.
+ * @returns {number|null} Guest limit or null if not set/expired
+ */
+export function getGuestLimit() {
+  if (isExpired()) {
+    clearInvitationData();
+    return null;
+  }
+
+  try {
+    const storedLimit = localStorage.getItem(STORAGE_KEYS.GUEST_LIMIT);
+    if (!storedLimit) return null;
+
+    const parsedLimit = Number.parseInt(storedLimit, 10);
+    return Number.isInteger(parsedLimit) && parsedLimit > 0
+      ? parsedLimit
+      : null;
+  } catch (error) {
+    console.error("Error retrieving guest limit:", error);
+    return null;
+  }
+}
+
+/**
  * Check if invitation data exists in localStorage
  * @returns {boolean}
  */
@@ -120,6 +163,7 @@ export function getInvitationData() {
   return {
     uid: getWeddingUid(),
     guestName: getGuestName(),
+    guestLimit: getGuestLimit(),
   };
 }
 
@@ -128,10 +172,14 @@ export function getInvitationData() {
  * @param {Object} data - Invitation data
  * @param {string} data.uid - Wedding UID
  * @param {string} data.guestName - Guest name
+ * @param {number} data.guestLimit - Maximum people allowed
  */
-export function storeInvitationData({ uid, guestName }) {
+export function storeInvitationData({ uid, guestName, guestLimit }) {
   storeWeddingUid(uid);
   if (guestName) {
     storeGuestName(guestName);
+  }
+  if (guestLimit) {
+    storeGuestLimit(guestLimit);
   }
 }

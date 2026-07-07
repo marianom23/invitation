@@ -119,6 +119,7 @@ describe("wishes routes", () => {
         name: "New Guest",
         message: "Best wishes!",
         attendance: "ATTENDING",
+        guest_count: 4,
       });
 
       mockPool = createMockPool({
@@ -136,6 +137,7 @@ describe("wishes routes", () => {
           name: "New Guest",
           message: "Best wishes!",
           attendance: "ATTENDING",
+          guest_count: 4,
         }),
       });
 
@@ -144,6 +146,7 @@ describe("wishes routes", () => {
       expect(res.status).toBe(201);
       expect(json.success).toBe(true);
       expect(json.data.name).toBe("New Guest");
+      expect(json.data.guest_count).toBe(4);
     });
 
     it("should return 404 for non-existent invitation", async () => {
@@ -215,6 +218,7 @@ describe("wishes routes", () => {
               name: params[1],
               message: params[2],
               attendance: params[3],
+              guest_count: params[4],
             }),
           ],
         }),
@@ -236,6 +240,21 @@ describe("wishes routes", () => {
 
       expect(res.status).toBe(201);
       expect(json.data.attendance).toBe("MAYBE");
+      expect(json.data.guest_count).toBe(1);
+    });
+
+    it("should validate guest count", async () => {
+      const res = await app.request("/test-wedding/wishes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Guest",
+          message: "Test message",
+          guest_count: 0,
+        }),
+      });
+
+      expect(res.status).toBe(400);
     });
   });
 
@@ -324,6 +343,7 @@ describe("wishes routes", () => {
       expect(json.data).toHaveProperty("not_attending");
       expect(json.data).toHaveProperty("maybe");
       expect(json.data).toHaveProperty("total");
+      expect(json.data).toHaveProperty("total_guests");
     });
   });
 });

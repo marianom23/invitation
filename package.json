@@ -23,7 +23,7 @@
   "scripts": {
     "dev": "concurrently \"bun run dev:client\" \"bun run dev:server\"",
     "dev:client": "vite",
-    "dev:server": "bun src/server/server.js",
+    "dev:server": "PORT=3000 bun src/server/server.js",
     "build": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -52,17 +52,19 @@ Creates new wish with attendance status.
 {
   "name": "Guest Name",
   "message": "Congratulations!",
-  "attendance": "ATTENDING"
+  "attendance": "ATTENDING",
+  "guest_count": 4
 }
 ```
 
 **Validation:**
 
-| Field        | Rules                                                       |
-| ------------ | ----------------------------------------------------------- |
-| `name`       | 1-100 characters, automatically trimmed                     |
-| `message`    | 1-500 characters, automatically trimmed                     |
-| `attendance` | `ATTENDING`, `NOT_ATTENDING`, or `MAYBE` (default: `MAYBE`) |
+| Field         | Rules                                                       |
+| ------------- | ------------------------------------------------------------ |
+| `name`        | 1-100 characters, automatically trimmed                     |
+| `message`     | 1-500 characters, automatically trimmed                     |
+| `attendance`  | `ATTENDING`, `NOT_ATTENDING`, or `MAYBE` (default: `MAYBE`) |
+| `guest_count` | Integer from 1 to 20 (default: 1)                            |
 
 ### DELETE `/api/:uid/wishes/:id`
 
@@ -86,9 +88,12 @@ Returns attendance statistics.
   "attending": 45,
   "not_attending": 12,
   "maybe": 8,
-  "total": 65
+  "total": 65,
+  "total_guests": 69
 }
 ```
+
+`attending` sums confirmed people using `guest_count`; `total` remains the number of RSVP responses.
 
 ## Error Responses
 
