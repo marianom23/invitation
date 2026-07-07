@@ -35,7 +35,7 @@ const config = {
         name: "Fiesta y Celebración",
         location: "Casa Strawitz",
         address: "Castro Barros 2715, Maipú",
-        time: "19:00 hrs",
+        time: "20:00 hrs",
         maps_url:
           "https://www.google.com/maps/place/Casa+Strawitz/@-32.9698343,-68.7364518,17z/data=!4m9!3m8!1s0x967e0d41fc867e67:0xba05e0e8bc430aec!5m2!4m1!1i2!8m2!3d-32.9698343!4d-68.7338769!16s%2Fg%2F11f0_qhknr",
         maps_embed:
@@ -66,8 +66,8 @@ const config = {
         // Second event name
         title: "Recepción de la Boda",
         date: "2026-12-06",
-        startTime: "19:00",
-        endTime: "03:00",
+        startTime: "20:00",
+        endTime: "04:00",
         location: "Casa Strawitz",
         address: "Castro Barros 2715, Maipú",
       },

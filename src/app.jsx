@@ -53,7 +53,7 @@ const LandingPage = lazy(
  */
 function App() {
   const [isInvitationOpen, setIsInvitationOpen] = useState(false);
-  const { config, isLoading, error } = useInvitation();
+  const { config, isLoading } = useInvitation();
 
   // Use config from API if available, otherwise fall back to static config
   const activeConfig = config || staticConfig.data;
@@ -76,33 +76,14 @@ function App() {
     setIsInvitationOpen(true);
   };
 
-  // Show loading state
-  if (isLoading) {
+  // Show loading state only while there is no config to render yet.
+  // If the API fails, fall back silently to the static config.
+  if (isLoading && !activeConfig) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-rose-50/30">
         <div className="flex flex-col items-center space-y-4">
           <Loader2 className="w-8 h-8 text-rose-500 animate-spin" />
           <p className="text-gray-600">Cargando la invitación...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-rose-50/30">
-        <div className="text-center space-y-4 p-8 bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
-          <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto">
-            <span className="text-2xl text-rose-500">?</span>
-          </div>
-          <h2 className="text-2xl font-serif text-gray-800">
-            Invitación No Encontrada
-          </h2>
-          <p className="text-gray-600 text-sm">{error}</p>
-          <p className="text-sm text-gray-500">
-            Por favor, verifica tu URL o contacta al organizador.
-          </p>
         </div>
       </div>
     );

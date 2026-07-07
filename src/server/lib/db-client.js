@@ -9,21 +9,18 @@
  * @returns {Promise<import('pg').Pool>} Database pool
  */
 export async function getDbClient(c) {
-  // Check if running in Cloudflare Workers with Hyperdrive
-  if (c.env?.DB) {
-    return c.env.DB;
-  }
+  // Hyperdrive binding exposes a connection string; fall back to DATABASE_URL
+  // for Wrangler dev / local runs
+  const hyperdriveConnectionString = c.env?.DB?.connectionString;
+  const databaseUrl = hyperdriveConnectionString || c.env?.DATABASE_URL;
 
-  // Check if we have DATABASE_URL in env (for Wrangler dev with .env)
-  if (c.env?.DATABASE_URL) {
-    // In Wrangler dev mode, use node-postgres via dynamic import
+  if (databaseUrl) {
     try {
       const pg = await import("pg");
       const { Pool } = pg.default || pg;
 
-      // Create a connection pool using DATABASE_URL from env
       const pool = new Pool({
-        connectionString: c.env.DATABASE_URL,
+        connectionString: databaseUrl,
       });
 
       return pool;

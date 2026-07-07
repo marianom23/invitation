@@ -13,6 +13,9 @@ import { safeBase64 } from "@/lib/base64";
 
 const InvitationContext = createContext(null);
 
+// UID used when guests open the bare URL without a personalized link
+const DEFAULT_INVITATION_UID = "carolina-ignacio-2026";
+
 /**
  * InvitationProvider component
  * Provides the invitation UID and config data throughout the app
@@ -90,10 +93,9 @@ export function InvitationProvider({ children }) {
     }
 
     // If no UID is provided, log a warning
-    console.warn(
-      "No invitation UID found. Please provide /your-uid in the URL or set VITE_INVITATION_UID in .env",
-    );
-    return null;
+    // No UID anywhere: fall back to this wedding's default UID
+    storeWeddingUid(DEFAULT_INVITATION_UID);
+    return DEFAULT_INVITATION_UID;
   }, [isAdminPage, location.pathname, location.search]);
 
   // Extract and store guest name from URL, then clean URL

@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// Same-origin by default; Vite proxies /api to localhost:3000 in dev
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export const api = {
   // Invitation

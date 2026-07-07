@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// Default to same-origin requests (the Worker serves both the SPA and the
+// API in production). For local dev, Vite proxies /api to localhost:3000.
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+function apiUrl(path) {
+  return `${API_URL}${path}`;
+}
 
 /**
  * Fetch all wishes for an invitation
@@ -8,7 +14,10 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
  */
 export async function fetchWishes(uid, options = {}) {
   const { limit = 50, offset = 0 } = options;
-  const url = new URL(`${API_URL}/api/${uid}/wishes`);
+  const url = new URL(
+    apiUrl(`/api/${uid}/wishes`),
+    globalThis.location?.origin,
+  );
   url.searchParams.set("limit", limit);
   url.searchParams.set("offset", offset);
 
@@ -27,7 +36,7 @@ export async function fetchWishes(uid, options = {}) {
  * @returns {Promise<object>} Response with created wish
  */
 export async function createWish(uid, wishData) {
-  const response = await fetch(`${API_URL}/api/${uid}/wishes`, {
+  const response = await fetch(apiUrl(`/api/${uid}/wishes`), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -54,7 +63,7 @@ export async function createWish(uid, wishData) {
  */
 export async function checkWishSubmitted(uid, name) {
   const response = await fetch(
-    `${API_URL}/api/${uid}/wishes/check/${encodeURIComponent(name)}`,
+    apiUrl(`/api/${uid}/wishes/check/${encodeURIComponent(name)}`),
   );
   if (!response.ok) {
     const error = await response.json();
@@ -70,7 +79,7 @@ export async function checkWishSubmitted(uid, name) {
  * @returns {Promise<object>} Response with deletion confirmation
  */
 export async function deleteWish(uid, wishId) {
-  const response = await fetch(`${API_URL}/api/${uid}/wishes/${wishId}`, {
+  const response = await fetch(apiUrl(`/api/${uid}/wishes/${wishId}`), {
     method: "DELETE",
   });
 
@@ -87,7 +96,7 @@ export async function deleteWish(uid, wishId) {
  * @returns {Promise<object>} Response with stats data
  */
 export async function fetchAttendanceStats(uid) {
-  const response = await fetch(`${API_URL}/api/${uid}/stats`);
+  const response = await fetch(apiUrl(`/api/${uid}/stats`));
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || "Failed to fetch stats");
@@ -101,7 +110,7 @@ export async function fetchAttendanceStats(uid) {
  * @returns {Promise<object>} Response with invitation data
  */
 export async function fetchInvitation(uid) {
-  const response = await fetch(`${API_URL}/api/invitation/${uid}`);
+  const response = await fetch(apiUrl(`/api/invitation/${uid}`));
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || "Failed to fetch invitation");
