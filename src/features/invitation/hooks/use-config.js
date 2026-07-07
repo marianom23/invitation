@@ -26,8 +26,24 @@ export function useConfig() {
       ? config.date.slice(0, 10)
       : config.date || staticConfig.data.date;
 
+  // The API only stores part of the config (names, dates, agenda, banks).
+  // Merge it over the static config so purely-frontend data (venues,
+  // galleries, story, dress code, playlist) is always available.
   return {
+    ...staticConfig.data,
     ...config,
     date: normalizedDate,
+    venues: config.venues || staticConfig.data.venues,
+    venuePhotos: config.venuePhotos || staticConfig.data.venuePhotos,
+    couplePhotos: config.couplePhotos || staticConfig.data.couplePhotos,
+    story: config.story || staticConfig.data.story,
+    dressCode: config.dressCode || staticConfig.data.dressCode,
+    spotify: config.spotify || staticConfig.data.spotify,
+    agenda: config.agenda?.length ? config.agenda : staticConfig.data.agenda,
+    banks: config.banks?.length ? config.banks : staticConfig.data.banks,
+    audio: {
+      ...staticConfig.data.audio,
+      ...config.audio,
+    },
   };
 }
