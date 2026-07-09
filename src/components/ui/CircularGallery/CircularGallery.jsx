@@ -308,9 +308,13 @@ class App {
       );
     }
   }
-  update() {
-    // Decorative carousel: always auto-spin, no user interaction
-    this.scroll.target += 0.03 * this.scrollSpeed;
+  update(now = performance.now()) {
+    // Decorative carousel: always auto-spin, no user interaction.
+    // Time-based instead of per-frame so dropped frames while scrolling
+    // don't pause the spin — it just continues from where it should be.
+    const dt = this.lastTime ? Math.min(now - this.lastTime, 200) : 16;
+    this.lastTime = now;
+    this.scroll.target += 0.0018 * this.scrollSpeed * dt;
 
     this.scroll.current = lerp(
       this.scroll.current,
@@ -318,20 +322,39 @@ class App {
       this.scroll.ease,
     );
     const direction = this.scroll.current > this.scroll.last ? "right" : "left";
-    if (this.medias) {
-      this.medias.forEach((media) => media.update(this.scroll, direction));
+
+    // Skip GPU work while the gallery is off-screen
+    if (this.isVisible !== false) {
+      if (this.medias) {
+        this.medias.forEach((media) => media.update(this.scroll, direction));
+      }
+      this.renderer.render({ scene: this.scene, camera: this.camera });
     }
-    this.renderer.render({ scene: this.scene, camera: this.camera });
+
     this.scroll.last = this.scroll.current;
     this.raf = window.requestAnimationFrame(this.update.bind(this));
   }
   addEventListeners() {
     this.boundOnResize = this.onResize.bind(this);
     window.addEventListener("resize", this.boundOnResize);
+
+    // Pause rendering while the gallery is scrolled out of view
+    if (typeof IntersectionObserver !== "undefined") {
+      this.observer = new IntersectionObserver(
+        ([entry]) => {
+          this.isVisible = entry.isIntersecting;
+        },
+        { rootMargin: "100px" },
+      );
+      this.observer.observe(this.container);
+    }
   }
   destroy() {
     window.cancelAnimationFrame(this.raf);
     window.removeEventListener("resize", this.boundOnResize);
+    if (this.observer) {
+      this.observer.disconnect();
+    }
     if (
       this.renderer &&
       this.renderer.gl &&

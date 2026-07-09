@@ -43,20 +43,11 @@ const Layout = ({ children, audioControls }) => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Globally Fixed & Rotated Watercolor Background */}
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-full z-0 pointer-events-none overflow-hidden bg-white">
-          <div
-            className="absolute top-1/2 left-1/2"
-            style={{
-              backgroundImage: `url('/images/watercolor-bg.webp')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              width: "100vh",
-              height: "100vw",
-              transform: "translate(-50%, -50%) rotate(90deg)",
-              transformOrigin: "center center",
-            }}
-          />
+        {/* Globally Fixed & Rotated Watercolor Background.
+            Sized with lvh/lvw (see index.css) so it doesn't shift when the
+            mobile URL bar collapses while scrolling. */}
+        <div className="card-fixed-bg">
+          <div className="card-fixed-bg-image" />
         </div>
 
         {/* Hearts + petals floating over the whole card */}
