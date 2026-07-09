@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useIsMobile } from "@/hooks/use-mobile-motion";
 
 export default function StoryTimeline() {
   const config = useConfig();
+  const isMobile = useIsMobile();
   const story = config?.story;
 
   // Hide section if no story milestones are configured
@@ -16,10 +18,10 @@ export default function StoryTimeline() {
       <div className="container mx-auto px-4 py-20 relative z-10">
         {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={isMobile ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: isMobile ? 0 : 0.8 }}
           className="text-center space-y-4 mb-14"
         >
           <span className="inline-block text-emerald-500 font-medium">
@@ -32,10 +34,13 @@ export default function StoryTimeline() {
 
           {/* Decorative Divider */}
           <motion.div
-            initial={{ scale: 0 }}
+            initial={isMobile ? false : { scale: 0 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
+            transition={{
+              delay: isMobile ? 0 : 0.3,
+              duration: isMobile ? 0 : 0.4,
+            }}
             className="flex items-center justify-center gap-4 pt-4"
           >
             <div className="h-[1px] w-12 bg-emerald-200" />
@@ -53,10 +58,10 @@ export default function StoryTimeline() {
             {story.map((milestone, index) => (
               <motion.div
                 key={`${milestone.year}-${index}`}
-                initial={{ opacity: 0, x: 30 }}
+                initial={isMobile ? false : { opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
+                transition={{ duration: isMobile ? 0 : 0.6, ease: "easeOut" }}
                 className="relative pl-14"
               >
                 {/* Year dot */}

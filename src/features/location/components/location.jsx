@@ -2,9 +2,11 @@ import { useConfig } from "@/features/invitation/hooks/use-config";
 import { Clock, MapPin, CalendarCheck, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatEventDate } from "@/lib/format-event-date";
+import { useIsMobile } from "@/hooks/use-mobile-motion";
 
 export default function Location() {
   const config = useConfig(); // Use hook to get config from API or fallback to static
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -16,16 +18,19 @@ export default function Location() {
         <div className="container mx-auto px-4 py-20 relative z-10">
           {/* Section Header */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? false : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: isMobile ? 0 : 0.8 }}
             viewport={{ once: true }}
             className="text-center space-y-4 mb-16"
           >
             <motion.span
-              initial={{ opacity: 0, y: 10 }}
+              initial={isMobile ? false : { opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{
+                delay: isMobile ? 0 : 0.2,
+                duration: isMobile ? 0 : 0.5,
+              }}
               viewport={{ once: true }}
               className="inline-block text-emerald-500 font-medium"
             >
@@ -33,9 +38,12 @@ export default function Location() {
             </motion.span>
 
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
+              initial={isMobile ? false : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{
+                delay: isMobile ? 0 : 0.3,
+                duration: isMobile ? 0 : 0.5,
+              }}
               viewport={{ once: true }}
               className="text-4xl md:text-5xl font-serif text-gray-800"
             >
@@ -44,9 +52,12 @@ export default function Location() {
 
             {/* Decorative Divider */}
             <motion.div
-              initial={{ scale: 0 }}
+              initial={isMobile ? false : { scale: 0 }}
               whileInView={{ scale: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{
+                delay: isMobile ? 0 : 0.4,
+                duration: isMobile ? 0 : 0.4,
+              }}
               viewport={{ once: true }}
               className="flex items-center justify-center gap-4 pt-4"
             >
@@ -62,9 +73,9 @@ export default function Location() {
               <div key={index} className="flex flex-col gap-8">
                 {/* Venue Details */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={isMobile ? false : { opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
+                  transition={{ duration: isMobile ? 0 : 0.8 }}
                   viewport={{ once: true }}
                   className="space-y-6"
                 >
@@ -115,9 +126,12 @@ export default function Location() {
 
                 {/* Map Container */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={isMobile ? false : { opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
+                  transition={{
+                    duration: isMobile ? 0 : 0.8,
+                    delay: isMobile ? 0 : 0.2,
+                  }}
                   viewport={{ once: true }}
                   className="w-full h-[300px] md:h-[400px] rounded-2xl overflow-hidden shadow-lg border-8 border-white"
                 >

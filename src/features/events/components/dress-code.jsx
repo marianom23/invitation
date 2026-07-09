@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useIsMobile } from "@/hooks/use-mobile-motion";
 
 /** Person in a suit with tie (Font Awesome "user-tie", CC BY 4.0) */
 const SuitIcon = ({ className }) => (
@@ -16,6 +17,7 @@ const SuitIcon = ({ className }) => (
 
 export default function DressCode() {
   const config = useConfig();
+  const isMobile = useIsMobile();
   const dressCode = config?.dressCode;
 
   // Hide section if no dress code is configured
@@ -27,19 +29,21 @@ export default function DressCode() {
     <div id="dress-code" className="relative bg-transparent">
       <div className="mt-10 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={isMobile ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: isMobile ? 0 : 0.8 }}
           className="max-w-md mx-auto text-center"
         >
           <div className="backdrop-blur-sm bg-white/70 px-8 py-10 rounded-3xl border border-emerald-100/50 shadow-lg space-y-5">
             {/* Icon */}
             <motion.div
-              initial={{ scale: 0 }}
+              initial={isMobile ? false : { scale: 0 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.2, type: "spring" }}
+              transition={
+                isMobile ? { duration: 0 } : { delay: 0.2, type: "spring" }
+              }
               className="flex items-center justify-center gap-4"
             >
               <div className="h-[1px] w-10 bg-emerald-200" />

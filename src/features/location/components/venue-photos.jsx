@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useIsMobile } from "@/hooks/use-mobile-motion";
 import Stack from "@/components/ui/Stack/Stack";
 
 const VenuePhotos = () => {
   const config = useConfig();
+  const isMobile = useIsMobile();
   const photos = config.venuePhotos || [];
 
   if (photos.length === 0) return null;
@@ -29,7 +31,7 @@ const VenuePhotos = () => {
       {/* Header */}
       <div className="container mx-auto px-4 mb-12 text-center">
         <motion.span
-          initial={{ opacity: 0, y: 10 }}
+          initial={isMobile ? false : { opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="inline-block text-rose-500 font-medium mb-2"
@@ -37,7 +39,7 @@ const VenuePhotos = () => {
           Nuestros Espacios
         </motion.span>
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial={isMobile ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-serif text-gray-800"
@@ -45,20 +47,23 @@ const VenuePhotos = () => {
           El Lugar
         </motion.h2>
         <motion.div
-          initial={{ scale: 0 }}
+          initial={isMobile ? false : { scale: 0 }}
           whileInView={{ scale: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          transition={{
+            delay: isMobile ? 0 : 0.2,
+            duration: isMobile ? 0 : 0.4,
+          }}
           className="h-1 w-20 bg-rose-200 mx-auto mt-4"
         />
       </div>
 
       {/* Stack card gallery — drag or tap to cycle photos */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={isMobile ? false : { opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: isMobile ? 0 : 0.6, ease: "easeOut" }}
         className="mx-auto px-8"
         style={{ width: "100%", maxWidth: 360, height: 420 }}
       >
@@ -77,10 +82,10 @@ const VenuePhotos = () => {
 
       {/* Hint text */}
       <motion.p
-        initial={{ opacity: 0 }}
+        initial={isMobile ? false : { opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: isMobile ? 0 : 0.5, duration: isMobile ? 0 : 0.3 }}
         className="text-center text-sm text-gray-400 mt-6 italic"
       >
         Toca para ver más →
