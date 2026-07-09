@@ -150,22 +150,50 @@ export default function Hero() {
               className="space-y-3"
             >
               <div className="text-gray-500 font-serif italic text-lg sm:text-xl tracking-wide max-w-md mx-auto leading-relaxed">
-                <span>Faltan </span>
-                {timeTogether.months > 0 && (
-                  <span>{timeTogether.months} meses, </span>
-                )}
-                <span>{timeTogether.days} días</span>
-                {timeTogether.hours > 0 ? (
-                  <>
-                    <span>, {timeTogether.hours} hr </span>
-                    <span className="text-gray-400 mx-1">y </span>
-                  </>
-                ) : (
-                  <span className="text-gray-400 mx-1"> y </span>
-                )}
-                <span className="inline-block min-w-[3ch] text-emerald-800 font-medium">
-                  {timeTogether.minutes} min
-                </span>
+                {(() => {
+                  const { months, days, hours, minutes } = timeTogether;
+
+                  // Big day arrived
+                  if (months + days + hours + minutes === 0) {
+                    return (
+                      <span className="text-emerald-800 font-medium">
+                        ¡Llegó el gran día!
+                      </span>
+                    );
+                  }
+
+                  // Only show units with a value (no "0 días" / "0 hr")
+                  const parts = [];
+                  if (months > 0)
+                    parts.push(`${months} ${months === 1 ? "mes" : "meses"}`);
+                  if (days > 0)
+                    parts.push(`${days} ${days === 1 ? "día" : "días"}`);
+                  if (hours > 0) parts.push(`${hours} hr`);
+                  if (minutes > 0 || parts.length === 0)
+                    parts.push(`${minutes} min`);
+
+                  const last = parts[parts.length - 1];
+                  const rest = parts.slice(0, -1).join(", ");
+                  const verb =
+                    parts.length === 1 && last.startsWith("1 ")
+                      ? "Falta"
+                      : "Faltan";
+
+                  return (
+                    <>
+                      <span>{verb} </span>
+                      {rest && (
+                        <>
+                          <span>{rest}</span>
+                          <span className="text-gray-400 mx-1"> y </span>
+                        </>
+                      )}
+                      <span className="inline-block text-emerald-800 font-medium">
+                        {last}
+                      </span>
+                    </>
+                  );
+                })()}
               </div>
               <p className="text-emerald-800 font-serif italic text-2xl sm:text-3xl tracking-widest uppercase">
                 <AnimatedLetters text="¡Nos Casamos!" delay={0.7} />
