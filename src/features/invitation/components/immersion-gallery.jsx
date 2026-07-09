@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
 import { useConfig } from "@/features/invitation/hooks/use-config";
 import { useIsMobile } from "@/hooks/use-mobile-motion";
-import CircularGallery from "@/components/ui/CircularGallery/CircularGallery";
+import Marquee from "@/components/ui/marquee";
+
+// Static tilt per card position for a polaroid-strip feel
+const TILTS = [-3, 2, -2, 3, -1.5];
 
 const ImmersionGallery = () => {
   const config = useConfig();
   const isMobile = useIsMobile();
   const couplePhotos = config.couplePhotos || [];
 
-  // CircularGallery expects items as { image, text } objects
-  const items = couplePhotos.map((p) => ({ image: p.image, text: p.alt }));
+  if (couplePhotos.length === 0) return null;
 
   return (
     <section className="py-20 bg-transparent overflow-hidden px-4">
@@ -38,15 +40,29 @@ const ImmersionGallery = () => {
         </motion.p>
       </div>
 
-      <div className="h-[400px] md:h-[500px] w-full relative overflow-visible">
-        <CircularGallery
-          items={items}
-          bend={1.0}
-          borderRadius={0.05}
-          scrollSpeed={1.0}
-          scrollEase={0.05}
-        />
-      </div>
+      {/* CSS-driven polaroid strip: compositor-only animation, always
+          smooth on mobile (never pauses or jumps while scrolling) */}
+      <Marquee repeat={3} className="[--duration:45s] [--gap:1.5rem] py-6">
+        {couplePhotos.map((photo, index) => (
+          <div
+            key={photo.image}
+            className="bg-white p-2 pb-7 rounded-lg shadow-lg shrink-0"
+            style={{ transform: `rotate(${TILTS[index % TILTS.length]}deg)` }}
+          >
+            <img
+              src={photo.image}
+              alt={photo.alt}
+              loading="lazy"
+              className="w-52 h-64 object-cover rounded-md"
+            />
+            {photo.alt && (
+              <p className="text-center text-gray-500 italic text-xs mt-2 font-serif">
+                {photo.alt}
+              </p>
+            )}
+          </div>
+        ))}
+      </Marquee>
     </section>
   );
 };
