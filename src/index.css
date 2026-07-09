@@ -35,7 +35,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --radius: 0.5rem;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -61,7 +61,7 @@
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --chart-5: 340 75% 55%;
   }
 }
 @layer base {
@@ -70,5 +70,30 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Floating decorations (hearts & petals): compositor-only animation.
+   Uses transform + opacity exclusively so falling items never trigger
+   layout/paint and stay smooth while scrolling on mobile. */
+@keyframes decoration-fall {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(var(--fall-rot-start, 0deg));
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--fall-opacity, 0.7);
+  }
+  50% {
+    transform: translate3d(var(--fall-sway, 40px), 48vh, 0)
+      rotate(var(--fall-rot-mid, 270deg));
+  }
+  88% {
+    opacity: var(--fall-opacity, 0.7);
+  }
+  100% {
+    transform: translate3d(calc(var(--fall-sway, 40px) * -0.5), 108vh, 0)
+      rotate(var(--fall-rot-end, 540deg));
+    opacity: 0;
   }
 }
