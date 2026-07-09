@@ -289,25 +289,6 @@ class App {
       });
     });
   }
-  onTouchDown(e) {
-    this.isDown = true;
-    this.scroll.position = this.scroll.current;
-    this.start = e.touches ? e.touches[0].clientX : e.clientX;
-  }
-  onTouchMove(e) {
-    if (!this.isDown) return;
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const distance = (this.start - x) * (this.scrollSpeed * 0.025);
-    this.scroll.target = this.scroll.position + distance;
-  }
-  onTouchUp() {
-    this.isDown = false;
-  }
-  onWheel(e) {
-    const delta = e.deltaY || e.wheelDelta || e.detail;
-    this.scroll.target +=
-      (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.2;
-  }
   onResize() {
     this.screen = {
       width: this.container.clientWidth,
@@ -328,10 +309,8 @@ class App {
     }
   }
   update() {
-    // Auto spin logic
-    if (!this.isDown) {
-      this.scroll.target += 0.03 * this.scrollSpeed; // Slower, smoother spin
-    }
+    // Decorative carousel: always auto-spin, no user interaction
+    this.scroll.target += 0.03 * this.scrollSpeed;
 
     this.scroll.current = lerp(
       this.scroll.current,
@@ -348,31 +327,11 @@ class App {
   }
   addEventListeners() {
     this.boundOnResize = this.onResize.bind(this);
-    this.boundOnWheel = this.onWheel.bind(this);
-    this.boundOnTouchDown = this.onTouchDown.bind(this);
-    this.boundOnTouchMove = this.onTouchMove.bind(this);
-    this.boundOnTouchUp = this.onTouchUp.bind(this);
     window.addEventListener("resize", this.boundOnResize);
-    window.addEventListener("mousewheel", this.boundOnWheel);
-    window.addEventListener("wheel", this.boundOnWheel);
-    window.addEventListener("mousedown", this.boundOnTouchDown);
-    window.addEventListener("mousemove", this.boundOnTouchMove);
-    window.addEventListener("mouseup", this.boundOnTouchUp);
-    window.addEventListener("touchstart", this.boundOnTouchDown);
-    window.addEventListener("touchmove", this.boundOnTouchMove);
-    window.addEventListener("touchend", this.boundOnTouchUp);
   }
   destroy() {
     window.cancelAnimationFrame(this.raf);
     window.removeEventListener("resize", this.boundOnResize);
-    window.removeEventListener("mousewheel", this.boundOnWheel);
-    window.removeEventListener("wheel", this.boundOnWheel);
-    window.removeEventListener("mousedown", this.boundOnTouchDown);
-    window.removeEventListener("mousemove", this.boundOnTouchMove);
-    window.removeEventListener("mouseup", this.boundOnTouchUp);
-    window.removeEventListener("touchstart", this.boundOnTouchDown);
-    window.removeEventListener("touchmove", this.boundOnTouchMove);
-    window.removeEventListener("touchend", this.boundOnTouchUp);
     if (
       this.renderer &&
       this.renderer.gl &&
