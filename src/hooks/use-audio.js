@@ -61,29 +61,13 @@ export function useAudio(options = {}) {
       }
     };
 
-    const handleWindowBlur = () => {
-      if (!audioRef.current) return;
-      wasPlayingRef.current = isPlaying;
-      if (isPlaying) {
-        audioRef.current.pause();
-      }
-    };
-
-    const handleWindowFocus = () => {
-      if (!audioRef.current) return;
-      if (wasPlayingRef.current) {
-        audioRef.current.play().catch(console.error);
-      }
-    };
-
+    // Note: no window blur/focus handlers on purpose. Tapping an embedded
+    // iframe (e.g. the Google Maps embeds) blurs the window and would pause
+    // the music. visibilitychange still covers leaving the tab/app.
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleWindowBlur);
-    window.addEventListener("focus", handleWindowFocus);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleWindowBlur);
-      window.removeEventListener("focus", handleWindowFocus);
     };
   }, [isPlaying]);
 
