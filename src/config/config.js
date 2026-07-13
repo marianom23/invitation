@@ -86,11 +86,6 @@ const config = {
         description: "Un espacio sagrado y lleno de luz",
       },
       {
-        image: "/images/Iglesia-jardin.webp",
-        title: "Jardín de la Parroquia",
-        description: "Un entorno natural para nuestra celebración",
-      },
-      {
         image: "/images/salon-alto.jpeg",
         title: "Casa Strawitz — Salón Alto",
         description: "Donde celebraremos juntos esta nueva etapa",
