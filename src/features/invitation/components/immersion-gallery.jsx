@@ -46,7 +46,7 @@ const ImmersionGallery = () => {
         {couplePhotos.map((photo, index) => (
           <div
             key={photo.image}
-            className="bg-white p-2 pb-7 rounded-lg shadow-lg shrink-0"
+            className="bg-white p-2 rounded-lg shadow-lg shrink-0"
             style={{ transform: `rotate(${TILTS[index % TILTS.length]}deg)` }}
           >
             <img
@@ -55,11 +55,6 @@ const ImmersionGallery = () => {
               loading="lazy"
               className="w-52 h-64 object-cover rounded-md"
             />
-            {photo.alt && (
-              <p className="text-center text-gray-500 italic text-xs mt-2 font-serif">
-                {photo.alt}
-              </p>
-            )}
           </div>
         ))}
       </Marquee>

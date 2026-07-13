@@ -107,13 +107,14 @@ const config = {
       },
     ],
 
-    // Couple photos for the circular gallery ("Nuestra Historia en Fotos")
+    // Couple photos for the photo carousel ("Nuestra Historia en Fotos")
     couplePhotos: [
-      { image: "/images/ellos-abrazados.jpeg", alt: "Abrazados" },
-      { image: "/images/ellos-beso.jpeg", alt: "Un beso" },
-      { image: "/images/ellos-casa.jpeg", alt: "En casa" },
-      { image: "/images/ellos-joven.jpeg", alt: "De jóvenes" },
-      { image: "/images/ellos-playa.jpeg", alt: "En la playa" },
+      { image: "/images/caro-1.webp", alt: "Carolina e Ignacio" },
+      { image: "/images/caro-2.webp", alt: "Carolina e Ignacio" },
+      { image: "/images/caro-3.webp", alt: "Carolina e Ignacio" },
+      { image: "/images/caro-4.webp", alt: "Carolina e Ignacio" },
+      { image: "/images/caro-5.webp", alt: "Carolina e Ignacio" },
+      { image: "/images/caro-6.webp", alt: "Carolina e Ignacio" },
     ],
 
     // Background music settings
